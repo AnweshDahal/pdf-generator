@@ -4,12 +4,14 @@
   "description": "PDF generation microservice ",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "doctor": "node ./src/utils/startupTest.js doctor",
+    "genEnv": "node ./src/utils/startupTest.js genEnv"
   },
   "author": "Anwesh Dahal",
   "license": "MIT",
   "dependencies": {
-    "compress": "^0.99.0",
+    "@paralleldrive/cuid2": "^3.3.0",
     "cors": "^2.8.6",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
