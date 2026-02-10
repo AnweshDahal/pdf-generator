@@ -58,6 +58,7 @@ module.exports = async ({ html, config = null }) => {
   await page.pdf({
     path: path.join(__dirname, '../../storage', pdfConfig.name),
     format: 'A4',
+    printBackground: true,
   });
 
   await browser.close();

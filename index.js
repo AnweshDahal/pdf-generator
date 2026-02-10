@@ -10,6 +10,7 @@ const generatePdf = require('./src/utils/pdf/generate');
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.set('port', process.env.PORT);
 
 app.use(helmet());
@@ -54,8 +55,9 @@ app.use(
 
 app.post('/pdf/generate', async (req, res, next) => {
   try {
+    console.log(req.body);
     const pdfFileName = await generatePdf({
-      html: `<h1 style="font-family: Inter">Hello</h1>`,
+      html: req.body.html,
       config: {
         name: req.query.filename,
       },
@@ -69,7 +71,11 @@ app.post('/pdf/generate', async (req, res, next) => {
     }
 
     res.download(pdfFilePath, pdfFileName);
+    setTimeout(() => {
+      fs.unlinkSync(pdfFilePath);
+    }, 60000);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: 'An Error Occured', data: error });
   }
 });
