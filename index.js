@@ -33,29 +33,30 @@ app.get('/health', (req, res, next) => {
   }
 });
 
-app.use(
-  rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 5,
-    message: {
-      error: 'Too many requests',
-      retryAfter: '15 minutes',
-    },
-    standardHeaders: true,
-    legacyHeaders: false,
-    handler: (req, res) => {
-      res.status(429).json({
-        error: 'Rate limit exceeded',
+if (process.env.NODE_ENV === 'production') {
+  app.use(
+    rateLimit({
+      windowMs: 15 * 60 * 1000,
+      max: 5,
+      message: {
+        error: 'Too many requests',
+        retryAfter: '15 minutes',
+      },
+      standardHeaders: true,
+      legacyHeaders: false,
+      handler: (req, res) => {
+        res.status(429).json({
+          error: 'Rate limit exceeded',
 
-        message: 'Too many requests from this IP, please try again later',
-      });
-    },
-  }),
-);
+          message: 'Too many requests from this IP, please try again later',
+        });
+      },
+    }),
+  );
+}
 
 app.post('/pdf/generate', async (req, res, next) => {
   try {
-    console.log(req.body);
     const pdfFileName = await generatePdf({
       html: req.body.html,
       config: {
@@ -70,10 +71,26 @@ app.post('/pdf/generate', async (req, res, next) => {
         .json({ message: 'Could not generate pdf please try again' });
     }
 
-    res.download(pdfFilePath, pdfFileName);
-    setTimeout(() => {
-      fs.unlinkSync(pdfFilePath);
-    }, 60000);
+    if (req.query.downloadType !== 'stream') {
+      res.download(pdfFilePath, pdfFileName);
+      setTimeout(() => {
+        fs.unlinkSync(pdfFilePath);
+      }, 60000);
+    } else {
+      const fileStream = fs.createReadStream(pdfFilePath);
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader(
+        'Content-Disposition',
+        `attachment; filename="${pdfFileName}"`,
+      );
+      fileStream.pipe(res);
+
+      fileStream.on('end', () => {
+        setTimeout(() => {
+          fs.unlinkSync(pdfFilePath);
+        }, 1000);
+      });
+    }
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'An Error Occured', data: error });
