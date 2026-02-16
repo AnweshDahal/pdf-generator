@@ -7,48 +7,75 @@ module.exports = async ({ html, config = null }) => {
     name: config?.name ?? `${createId()}.pdf`,
   };
 
+  // ? code below was restructured and optimized using AI
   const browser = await puppeteer.launch({
     headless: 'shell',
     args: [
-      '--disable-features=IsolateOrigins',
-      '--disable-site-isolation-trials',
-      '--autoplay-policy=user-gesture-required',
+      // Essential Docker flags
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+
+      // Performance optimizations
+      '--disable-gpu',
+      '--disable-software-rasterizer',
+      '--disable-extensions',
       '--disable-background-networking',
       '--disable-background-timer-throttling',
       '--disable-backgrounding-occluded-windows',
-      '--disable-breakpad',
-      '--disable-client-side-phishing-detection',
-      '--disable-component-update',
-      '--disable-default-apps',
-      '--disable-dev-shm-usage',
-      '--disable-domain-reliability',
-      '--disable-extensions',
+      '--disable-renderer-backgrounding',
+      '--disable-sync',
+
+      // Memory optimizations
+      '--disable-features=IsolateOrigins,site-per-process',
+      '--disable-site-isolation-trials',
       '--disable-features=AudioServiceOutOfProcess',
+
+      // Reduce resource usage
+      '--disable-default-apps',
+      '--disable-component-update',
+      '--disable-domain-reliability',
+      '--disable-breakpad',
       '--disable-hang-monitor',
       '--disable-ipc-flooding-protection',
+      '--disable-client-side-phishing-detection',
+
+      // UI/UX (not needed in headless)
       '--disable-notifications',
-      '--disable-offer-store-unmasked-wallet-cards',
       '--disable-popup-blocking',
       '--disable-print-preview',
       '--disable-prompt-on-repost',
-      '--disable-renderer-backgrounding',
-      '--disable-setuid-sandbox',
-      '--disable-speech-api',
-      '--disable-sync',
       '--hide-scrollbars',
+      '--mute-audio',
+      '--no-first-run',
+      '--no-default-browser-check',
+      '--no-pings',
+
+      // Security/privacy
+      '--autoplay-policy=user-gesture-required',
+      '--disable-offer-store-unmasked-wallet-cards',
+      '--disable-speech-api',
+      '--password-store=basic',
+      '--use-mock-keychain',
+
+      // Rendering
+      '--use-gl=swiftshader',
       '--ignore-gpu-blacklist',
       '--metrics-recording-only',
-      '--mute-audio',
-      '--no-default-browser-check',
-      '--no-first-run',
-      '--no-pings',
-      '--no-sandbox',
-      '--no-zygote',
-      '--password-store=basic',
-      '--use-gl=swiftshader',
-      '--use-mock-keychain',
+
+      // Additional Docker-specific optimizations
+      '--single-process', // Use only if you have memory constraints
+      '--disable-blink-features=AutomationControlled', // Avoid detection
     ],
+
+    // Additional Docker optimizations
+    executablePath:
+      process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+    timeout: 30000,
+    dumpio: false, // Set to true for debugging
+    protocolTimeout: 180000,
   });
+  // ? up until here
 
   const page = await browser.newPage();
 
