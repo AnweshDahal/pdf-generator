@@ -68,9 +68,8 @@ module.exports = async ({ html, config = null }) => {
       '--disable-blink-features=AutomationControlled', // Avoid detection
     ],
 
-    // Additional Docker optimizations
     executablePath:
-      process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium-browser',
+      process.env.PUPPETEER_EXECUTABLE_PATH || '/usr/bin/chromium',
     timeout: 30000,
     dumpio: false, // Set to true for debugging
     protocolTimeout: 180000,

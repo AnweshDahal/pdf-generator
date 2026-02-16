@@ -1,9 +1,9 @@
-FROM node:22
+FROM node:22-slim
 
 # Environment Setup
 RUN apt-get update && apt-get install -y \
   chromium \
-  fonts-inter \
+  fonts-liberation \
   libappindicator3-1 \
   libasound2 \
   libatk-bridge2.0-0 \
@@ -21,11 +21,12 @@ RUN apt-get update && apt-get install -y \
   libxrandr2 \
   xdg-utils \
   --no-install-recommends \
-  && rm -rf /var/lib/apt/lists/*
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Set environment variable for Puppeteer
-ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
-ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
+  PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 
 # App Setup
@@ -33,11 +34,16 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm ci --only=production && npm cache clean --force
 
 COPY . .
+
+RUN groupadd -r appuser && useradd -r -g appuser appuser \
+  && chown -R appuser:appuser /usr/src/app
+
+USER appuser
 
 EXPOSE 3673
 
 # Running the app
-CMD ["npm", "./index.js"]
+CMD ["node", "./index.js"]
