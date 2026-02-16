@@ -19,7 +19,7 @@ app.use(verifyToken);
 
 app.use(morgan(process.env.NODE_ENV === 'development' ? 'dev' : 'tiny'));
 
-app.get('/debug', (req, res, next) => {
+app.get('/health', (req, res, next) => {
   try {
     res.status(200).json({
       message: 'PDF Generator is Running Properly',
