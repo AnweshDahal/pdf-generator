@@ -9,63 +9,23 @@ module.exports = async ({ html, config = null }) => {
 
   // ? code below was restructured and optimized using AI
   const browser = await puppeteer.launch({
-    headless: 'shell',
+    headless: true,
     args: [
-      // Essential Docker flags
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
-
-      // Performance optimizations
       '--disable-gpu',
       '--disable-software-rasterizer',
+      '--no-zygote',
+      '--single-process',
       '--disable-extensions',
       '--disable-background-networking',
-      '--disable-background-timer-throttling',
-      '--disable-backgrounding-occluded-windows',
-      '--disable-renderer-backgrounding',
       '--disable-sync',
-
-      // Memory optimizations
-      '--disable-features=IsolateOrigins,site-per-process',
-      '--disable-site-isolation-trials',
-      '--disable-features=AudioServiceOutOfProcess',
-
-      // Reduce resource usage
-      '--disable-default-apps',
-      '--disable-component-update',
-      '--disable-domain-reliability',
-      '--disable-breakpad',
-      '--disable-hang-monitor',
-      '--disable-ipc-flooding-protection',
-      '--disable-client-side-phishing-detection',
-
-      // UI/UX (not needed in headless)
-      '--disable-notifications',
-      '--disable-popup-blocking',
-      '--disable-print-preview',
-      '--disable-prompt-on-repost',
       '--hide-scrollbars',
       '--mute-audio',
       '--no-first-run',
       '--no-default-browser-check',
-      '--no-pings',
-
-      // Security/privacy
-      '--autoplay-policy=user-gesture-required',
-      '--disable-offer-store-unmasked-wallet-cards',
-      '--disable-speech-api',
-      '--password-store=basic',
-      '--use-mock-keychain',
-
-      // Rendering
-      '--use-gl=swiftshader',
-      '--ignore-gpu-blacklist',
-      '--metrics-recording-only',
-
-      // Additional Docker-specific optimizations
-      '--single-process', // Use only if you have memory constraints
-      '--disable-blink-features=AutomationControlled', // Avoid detection
+      '--disable-breakpad',
     ],
 
     executablePath:
